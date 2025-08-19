@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
-	"io"
 )
 
 func getLinesChannel(f io.ReadCloser) <-chan string {
@@ -17,20 +17,19 @@ func getLinesChannel(f io.ReadCloser) <-chan string {
 
 		str := ""
 		for {
-			data := make([]byte, 8);
-			n, err := f.Read(data);
+			data := make([]byte, 8)
+			n, err := f.Read(data)
 			if err != nil {
 				break
 			}
 
-			data = data[:n];
+			data = data[:n]
 			if i := bytes.IndexByte(data, '\n'); i != -1 {
 				str += string(data[:i])
 				data = data[i + 1:]
 				out <- str
 				str = ""
 			}
-
 			str += string(data)
 		}
 
@@ -43,9 +42,9 @@ func getLinesChannel(f io.ReadCloser) <-chan string {
 }
 
 func main() {
-	f, err := os.Open("messages.txt");
+	f, err := os.Open("messages.txt")
 	if err != nil {
-		log.Fatal("Error opening file:", err);
+		log.Fatal("Error fetching message: ", err)
 	}
 
 	lines := getLinesChannel(f)
