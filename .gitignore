@@ -1,0 +1,5 @@
+build/
+fuzz/corpus/
+crash-*
+leak-*
+timeout-*

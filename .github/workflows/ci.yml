@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cpp:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: release (gcc)
+            run: make -j"$(nproc)" && make test
+          - name: asan + ubsan
+            run: make -j"$(nproc)" asan
+          - name: tsan
+            run: make -j"$(nproc)" tsan
+          - name: fuzz (differential, 1M iterations)
+            run: make fuzz FUZZ_ITERS=1000000
+          - name: cmake (clang)
+            run: |
+              CXX=clang++ cmake -S . -B build/cmake -G "Unix Makefiles"
+              cmake --build build/cmake -j"$(nproc)"
+              ctest --test-dir build/cmake --output-on-failure
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ${{ matrix.run }}
